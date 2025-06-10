@@ -11,6 +11,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
+    // List item ini hanya berisi screen yang memiliki ikon dan judul
     val items = listOf(
         Screen.Dashboard,
         Screen.Waste,
@@ -24,8 +25,18 @@ fun BottomNavigationBar(navController: NavController) {
 
         items.forEach { screen ->
             NavigationBarItem(
-                icon = { Icon(screen.icon, contentDescription = screen.title) },
-                label = { Text(screen.title) },
+                icon = {
+                    // PERBAIKAN: Memeriksa null sebelum memanggil composable Icon
+                    screen.icon?.let {
+                        Icon(imageVector = it, contentDescription = screen.title)
+                    }
+                },
+                label = {
+                    // PERBAIKAN: Memeriksa null sebelum memanggil composable Text
+                    screen.title?.let {
+                        Text(text = it)
+                    }
+                },
                 selected = currentRoute == screen.route,
                 onClick = {
                     navController.navigate(screen.route) {
