@@ -15,8 +15,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dashboard_ewaste_android.ui.theme.DashboardEwasteAndroidTheme
 
+import androidx.hilt.navigation.compose.hiltViewModel // Import HiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle // Import for observing Flow
+import androidx.compose.runtime.getValue // Import for destructuring assignment
+import com.example.dashboard_ewaste_android.data.model.Dropbox
+import com.example.dashboard_ewaste_android.data.model.Poin
+import com.example.dashboard_ewaste_android.data.model.WasteItem
+
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(
+    viewModel: DashboardViewModel = hiltViewModel() // Inject DashboardViewModel
+) {
+    // Collect data from ViewModel
+    val allDropboxes by viewModel.allDropboxes.collectAsStateWithLifecycle()
+    val allPoin by viewModel.allPoin.collectAsStateWithLifecycle()
+    val allWasteItems by viewModel.allWasteItems.collectAsStateWithLifecycle()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -27,28 +41,40 @@ fun DashboardScreen() {
             Text("Dashboard", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         }
         item {
-            StatsCard() // Placeholder for chart and progress
+
+            StatsCard(
+                dropboxCount = allDropboxes.size, // Example: pass count of dropboxes
+                totalPoin = allPoin.sumOf { it.jumlahPoin }, // Example: sum of all poin
+                wasteItemCount = allWasteItems.size // Example: pass count of waste items
+            )
         }
         item {
-            ApprovalSection() // Combined section for approvals
+            ApprovalSection()
         }
     }
 }
 
 @Composable
-fun StatsCard() {
+fun StatsCard(dropboxCount: Int, totalPoin: Int, wasteItemCount: Int) { // Updated parameters
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Laporan Pengelolaan Sampah", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(16.dp))
-            // Placeholder for the graph
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Grafik Laporan di sini")
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Total Dropboxes: $dropboxCount")
+                    Text("Total Poin Terkumpul: $totalPoin")
+                    Text("Jumlah Sampah Terdaftar: $wasteItemCount")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Grafik Laporan di sini")
+                }
             }
         }
     }
@@ -59,7 +85,6 @@ fun ApprovalSection() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("Request Approval", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
-        // Based on "Gambar 31 Prototipe Halaman Approval Masyarakat"
         ApprovalItemCard("Zacky Azmi")
         ApprovalItemCard("Aldi Maulana Fadilah")
         ApprovalItemCard("Umar")
@@ -97,6 +122,8 @@ fun ApprovalItemCard(name: String) {
 @Composable
 fun DashboardScreenPreview() {
     DashboardEwasteAndroidTheme {
+        // Untuk Preview, Anda bisa menyediakan ViewModel dummy atau data dummy
+        // Atau memanggil composable yang tidak membutuhkan ViewModel langsung,
         DashboardScreen()
     }
 }
