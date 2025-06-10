@@ -12,6 +12,9 @@ import com.example.dashboard_ewaste_android.ui.navigation.AppNavigation
 import com.example.dashboard_ewaste_android.ui.navigation.BottomNavigationBar
 import com.example.dashboard_ewaste_android.ui.theme.DashboardEwasteAndroidTheme
 
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

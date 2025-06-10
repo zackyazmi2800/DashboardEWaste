@@ -15,9 +15,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dashboard_ewaste_android.ui.theme.DashboardEwasteAndroidTheme
 
+import androidx.hilt.navigation.compose.hiltViewModel // Import HiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle // Import for observing Flow
+import com.example.dashboard_ewaste_android.data.model.WasteItem // Import WasteItem model
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WasteManagementScreen() {
+fun WasteManagementScreen(
+    viewModel: WasteViewModel = hiltViewModel() // Inject WasteViewModel
+) {
+    val wasteItems by viewModel.wasteItems.collectAsStateWithLifecycle() // Observe waste items
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Manajemen Sampah") })
@@ -29,21 +37,37 @@ fun WasteManagementScreen() {
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
+            item {
+                WasteCategory(
+                    categoryName = "Semua Sampah Terdaftar",
+                    items = wasteItems.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" } // Mengubah WasteItem menjadi String
+                )
+            }
+         
             item {
                 WasteCategory(
                     categoryName = "Sampah Ponsel",
-                    items = listOf("Ponsel Poco X3 Pro Mati")
+                    items = wasteItems.filter { it.nama.contains("Ponsel", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
                 )
             }
             item {
-                WasteCategory(categoryName = "Sampah TV/Monitor", items = emptyList())
+                WasteCategory(
+                    categoryName = "Sampah TV/Monitor",
+                    items = wasteItems.filter { it.nama.contains("TV", ignoreCase = true) || it.nama.contains("Monitor", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
             }
             item {
-                WasteCategory(categoryName = "Sampah Komputer", items = emptyList())
+                WasteCategory(
+                    categoryName = "Sampah Komputer",
+                    items = wasteItems.filter { it.nama.contains("Komputer", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
             }
+
         }
     }
 }
+
 
 @Composable
 fun WasteCategory(categoryName: String, items: List<String>) {
@@ -66,11 +90,12 @@ fun WasteCategory(categoryName: String, items: List<String>) {
             }
             if (expanded) {
                 Divider()
-                items.forEach { item ->
-                    WasteItemRow(itemName = item)
-                }
                 if(items.isEmpty()) {
                     Text("Tidak ada sampah", modifier = Modifier.padding(16.dp))
+                } else {
+                    items.forEach { item ->
+                        WasteItemRow(itemName = item)
+                    }
                 }
             }
         }
@@ -97,6 +122,7 @@ fun WasteItemRow(itemName: String) {
 @Composable
 fun WasteManagementScreenPreview() {
     DashboardEwasteAndroidTheme {
+        // Untuk Preview, Anda bisa menyediakan ViewModel dummy atau data dummy
         WasteManagementScreen()
     }
 }
