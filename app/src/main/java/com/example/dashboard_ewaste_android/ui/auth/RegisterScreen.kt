@@ -1,4 +1,4 @@
-package com.example.dashboard_ewaste_android.ui.screens.auth
+package com.example.dashboard_ewaste_android.ui.auth
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,12 +9,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit,
-    onRegisterClicked: () -> Unit
-) {
+fun RegisterScreen(onRegisterSuccess: () -> Unit, onLoginClicked: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -23,7 +21,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Login", style = MaterialTheme.typography.headlineMedium)
+        Text("Register", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
@@ -41,20 +39,29 @@ fun LoginScreen(
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            label = { Text("Konfirmasi Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                // TODO: Validasi login, jika berhasil panggil onLoginSuccess()
-                onLoginSuccess()
+                // TODO: Validasi dan proses registrasi, jika berhasil panggil onRegisterSuccess()
+                onRegisterSuccess()
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Login")
+            Text("Register")
         }
 
-        TextButton(onClick = onRegisterClicked) {
-            Text("Belum punya akun? Registrasi")
+        TextButton(onClick = onLoginClicked) {
+            Text("Sudah punya akun? Login")
         }
     }
 }
