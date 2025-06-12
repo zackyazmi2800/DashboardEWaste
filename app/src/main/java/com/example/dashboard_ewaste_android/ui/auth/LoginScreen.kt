@@ -1,4 +1,4 @@
-package com.example.dashboard_ewaste_android.ui.screens.auth
+package com.example.dashboard_ewaste_android.ui.auth
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,10 +9,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RegisterScreen(onLoginClicked: () -> Unit) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onRegisterClicked: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -21,7 +23,7 @@ fun RegisterScreen(onLoginClicked: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Register", style = MaterialTheme.typography.headlineMedium)
+        Text("Login", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
@@ -39,29 +41,20 @@ fun RegisterScreen(onLoginClicked: () -> Unit) {
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Konfirmasi Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                // TODO: Validasi dan proses registrasi, jika berhasil panggil onLoginClicked()
-                onLoginClicked()
+                // TODO: Validasi login, jika berhasil panggil onLoginSuccess()
+                onLoginSuccess()
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Register")
+            Text("Login")
         }
 
-        TextButton(onClick = onLoginClicked) {
-            Text("Sudah punya akun? Login")
+        TextButton(onClick = onRegisterClicked) {
+            Text("Belum punya akun? Registrasi")
         }
     }
 }
