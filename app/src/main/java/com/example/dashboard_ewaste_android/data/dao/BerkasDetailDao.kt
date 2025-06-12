@@ -5,13 +5,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.dashboard_ewaste_android.data.model.BerkasDetail
-import kotlinx.coroutines.flow.Flow // Untuk mengamati perubahan data secara reaktif
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BerkasDetailDao {
-    @Query("SELECT * FROM berkas_detail") // Query SQL untuk mengambil semua BerkasDetail
+    @Query("SELECT * FROM berkas_detail")
     fun getAllBerkasDetail(): Flow<List<BerkasDetail>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) // Jika ada konflik (misal ID sama), ganti yang lama
-    suspend fun insertBerkasDetail(berkasDetail: BerkasDetail) // Fungsi untuk memasukkan data baru
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertBerkasDetail(berkasDetail: BerkasDetail)
 }
