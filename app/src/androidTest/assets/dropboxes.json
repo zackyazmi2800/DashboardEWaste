@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nama": "DROP-BOX SUKASARI",
+    "lokasi": "SUKASARI",
+    "kapasitas": 1000
+  },
+  {
+    "id": 2,
+    "nama": "DROP-BOX SUKAJADI",
+    "lokasi": "SUKAJADI",
+    "kapasitas": 1200
+  },
+  {
+    "id": 3,
+    "nama": "DROP-BOX ANDIR",
+    "lokasi": "ANDIR",
+    "kapasitas": 1500
+  },
+  {
+    "id": 4,
+    "nama": "DROP-BOX BATUJAJAR",
+    "lokasi": "BATUJAJAR",
+    "kapasitas": 800
+  }
+]

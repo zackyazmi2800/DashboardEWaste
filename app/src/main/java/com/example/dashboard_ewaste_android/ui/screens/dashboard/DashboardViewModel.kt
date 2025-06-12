@@ -1,5 +1,6 @@
 package com.example.dashboard_ewaste_android.ui.screens.dashboard
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dashboard_ewaste_android.data.model.Dropbox
@@ -12,7 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first // <--- PASTIKAN INI DIIMPOR
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +24,6 @@ class DashboardViewModel @Inject constructor(
     private val wasteRepository: WasteRepository
 ) : ViewModel() {
 
-    // State untuk data yang akan ditampilkan di Dashboard
     private val _allDropboxes = MutableStateFlow<List<Dropbox>>(emptyList())
     val allDropboxes: StateFlow<List<Dropbox>> = _allDropboxes.asStateFlow()
 
@@ -34,17 +34,35 @@ class DashboardViewModel @Inject constructor(
     val allWasteItems: StateFlow<List<WasteItem>> = _allWasteItems.asStateFlow()
 
     init {
-        // Mengumpulkan data dari semua repository
-        viewModelScope.launch {
-            dropboxRepository.getDropboxes().collect { _allDropboxes.value = it }
-        }
-        viewModelScope.launch {
-            poinRepository.getAllPoin().collect { _allPoin.value = it }
-        }
-        viewModelScope.launch {
-            wasteRepository.getWasteItems().collect { _allWasteItems.value = it }
-        }
+        Log.d("DashboardViewModel", "ViewModel initialized.")
     }
 
+    fun loadAllData() {
+        Log.d("DashboardViewModel", "loadAllData() called from UI. Starting collections.")
+        viewModelScope.launch {
+            try {
+                Log.d("DashboardViewModel", "Collecting dropboxes for Dashboard...")
+                val loadedDropboxes = dropboxRepository.getDropboxes().first() // <--- PERUBAHAN DI SINI
+                _allDropboxes.value = loadedDropboxes
+                Log.d("DashboardViewModel", "Collected ${loadedDropboxes.size} dropboxes for Dashboard.")
+            } catch (e: Exception) {
+                Log.e("DashboardViewModel", "Error loading dropboxes for Dashboard: ${e.message}", e)
+                _allDropboxes.value = emptyList()
+            }
+        }
+        viewModelScope.launch {
+            Log.d("DashboardViewModel", "Collecting poin for Dashboard...")
+            poinRepository.getAllPoin().collect {
+                Log.d("DashboardViewModel", "Collected ${it.size} poin for Dashboard.")
+                _allPoin.value = it
+            }
+        }
+        viewModelScope.launch {
+            Log.d("DashboardViewModel", "Collecting waste items for Dashboard...")
+            wasteRepository.getWasteItems().collect {
+                Log.d("DashboardViewModel", "Collected ${it.size} waste items for Dashboard.")
+                _allWasteItems.value = it
+            }
+        }
+    }
 }
-
