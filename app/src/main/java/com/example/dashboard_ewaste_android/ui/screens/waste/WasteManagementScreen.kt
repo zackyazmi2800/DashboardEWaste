@@ -3,7 +3,9 @@ package com.example.dashboard_ewaste_android.ui.screens.waste
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
@@ -15,13 +17,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dashboard_ewaste_android.ui.theme.DashboardEwasteAndroidTheme
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.dashboard_ewaste_android.data.model.WasteItem
+
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import kotlinx.coroutines.launch
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WasteManagementScreen() {
+fun WasteManagementScreen(
+    viewModel: WasteViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        viewModel.loadWasteItems()
+    }
+
+    val wasteItems by viewModel.wasteItems.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+
+    var showAddWasteDialog by remember { mutableStateOf(false) }
+    var wasteNameInput by remember { mutableStateOf("") }
+    var wasteWeightInput by remember { mutableStateOf("") }
+    var wasteQtyInput by remember { mutableStateOf("") }
+
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Manajemen Sampah") })
-        }
+        },
+        // FloatingActionButton DIHAPUS DARI SINI
+        // floatingActionButton = { ... }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -31,16 +62,78 @@ fun WasteManagementScreen() {
         ) {
             item {
                 WasteCategory(
+                    categoryName = "Semua Sampah Terdaftar",
+                    items = wasteItems.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
+            }
+
+            item {
+                WasteCategory(
                     categoryName = "Sampah Ponsel",
-                    items = listOf("Ponsel Poco X3 Pro Mati")
+                    items = wasteItems.filter { it.nama.contains("Ponsel", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
                 )
             }
             item {
-                WasteCategory(categoryName = "Sampah TV/Monitor", items = emptyList())
+                WasteCategory(
+                    categoryName = "Sampah TV/Monitor",
+                    items = wasteItems.filter { it.nama.contains("TV", ignoreCase = true) || it.nama.contains("Monitor", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
             }
             item {
-                WasteCategory(categoryName = "Sampah Komputer", items = emptyList())
+                WasteCategory(
+                    categoryName = "Sampah Komputer",
+                    items = wasteItems.filter { it.nama.contains("Komputer", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
             }
+
+            // --- TOMBOL TAMBAH BIASA DI SINI ---
+            item {
+                Spacer(modifier = Modifier.height(16.dp)) // Spasi dari item terakhir
+                Button(
+                    onClick = { showAddWasteDialog = true },
+                    modifier = Modifier.fillMaxWidth().height(50.dp) // Sesuaikan tinggi button
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Tambah Sampah")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Tambah Sampah Baru") // Teks tombol
+                }
+                Spacer(modifier = Modifier.height(16.dp)) // Spasi di bagian bawah
+            }
+            // --- AKHIR TOMBOL TAMBAH BIASA ---
+        }
+
+        if (showAddWasteDialog) {
+            AddWasteDialog(
+                wasteName = wasteNameInput,
+                onWasteNameChange = { wasteNameInput = it },
+                wasteWeight = wasteWeightInput,
+                onWasteWeightChange = { wasteWeightInput = it },
+                wasteQty = wasteQtyInput,
+                onWasteQtyChange = { wasteQtyInput = it },
+                onAddWaste = {
+                    scope.launch {
+                        val name = wasteNameInput.trim()
+                        val weight = wasteWeightInput.toIntOrNull()
+                        val qty = wasteQtyInput.toIntOrNull()
+
+                        if (name.isNotBlank() && weight != null && qty != null) {
+                            viewModel.addWasteItem(WasteItem(nama = name, berat = weight, qty = qty))
+                            wasteNameInput = ""
+                            wasteWeightInput = ""
+                            wasteQtyInput = ""
+                            showAddWasteDialog = false
+                        } else {
+                            // Anda bisa menambahkan Toast atau Snackbar di sini untuk pesan error
+                        }
+                    }
+                },
+                onDismiss = {
+                    showAddWasteDialog = false
+                    wasteNameInput = ""
+                    wasteWeightInput = ""
+                    wasteQtyInput = ""
+                }
+            )
         }
     }
 }
@@ -66,11 +159,12 @@ fun WasteCategory(categoryName: String, items: List<String>) {
             }
             if (expanded) {
                 Divider()
-                items.forEach { item ->
-                    WasteItemRow(itemName = item)
-                }
                 if(items.isEmpty()) {
                     Text("Tidak ada sampah", modifier = Modifier.padding(16.dp))
+                } else {
+                    items.forEach { item ->
+                        WasteItemRow(itemName = item)
+                    }
                 }
             }
         }
@@ -92,6 +186,64 @@ fun WasteItemRow(itemName: String) {
         }
     }
 }
+
+@Composable
+fun AddWasteDialog(
+    wasteName: String,
+    onWasteNameChange: (String) -> Unit,
+    wasteWeight: String,
+    onWasteWeightChange: (String) -> Unit,
+    wasteQty: String,
+    onWasteQtyChange: (String) -> Unit,
+    onAddWaste: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Tambah Sampah Baru") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = wasteName,
+                    onValueChange = onWasteNameChange,
+                    label = { Text("Nama Sampah") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = wasteWeight,
+                    onValueChange = onWasteWeightChange,
+                    label = { Text("Berat (KG)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = wasteQty,
+                    onValueChange = onWasteQtyChange,
+                    label = { Text("Jumlah (Pcs)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onAddWaste) {
+                Text("Tambah")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal")
+            }
+        }
+    )
+}
+
 
 @Preview(showBackground = true)
 @Composable

@@ -14,9 +14,10 @@ fun BottomNavigationBar(navController: NavController) {
     // List item ini hanya berisi screen yang memiliki ikon dan judul
     val items = listOf(
         Screen.Dashboard,
-        Screen.Waste,
+//        Screen.Waste,
         Screen.Poin,
-        Screen.Dropbox
+        Screen.Dropbox,
+                Screen.Approval
     )
 
     NavigationBar {
