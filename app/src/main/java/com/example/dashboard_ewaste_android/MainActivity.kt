@@ -4,13 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.getValue
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.dashboard_ewaste_android.ui.navigation.AppNavigation
 import com.example.dashboard_ewaste_android.ui.navigation.BottomNavigationBar
-import com.example.dashboard_ewaste_android.ui.navigation.Screen
 import com.example.dashboard_ewaste_android.ui.theme.DashboardEwasteAndroidTheme
 
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,25 +22,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             DashboardEwasteAndroidTheme {
                 val navController = rememberNavController()
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
-
-                val mainAppScreens = listOf(
-                    Screen.Dashboard.route,
-                    Screen.Waste.route,
-                    Screen.Poin.route,
-                    Screen.Dropbox.route
-                )
-
                 Scaffold(
-                    bottomBar = {
-                        if (currentRoute in mainAppScreens) {
-                            BottomNavigationBar(navController = navController)
-                        }
-                    }
+                    bottomBar = { BottomNavigationBar(navController = navController) }
                 ) { innerPadding ->
-                    // AppNavigation tidak lagi memerlukan innerPadding karena
-                    // halaman login/register tidak berada dalam Scaffold utama
+                    // AppNavigation sebagai konten utama
                     AppNavigation(navController = navController)
                 }
             }

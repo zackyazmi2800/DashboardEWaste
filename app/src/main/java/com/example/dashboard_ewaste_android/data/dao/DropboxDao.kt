@@ -18,6 +18,6 @@ interface DropboxDao {
     @Query("DELETE FROM dropbox")
     suspend fun deleteAllDropboxes()
 
-    @Delete // <--- TAMBAHKAN FUNGSI INI
+    @Delete //
     suspend fun deleteDropbox(dropbox: Dropbox)
 }

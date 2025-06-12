@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete // PASTIKAN IMPOR INI ADA
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,21 +38,8 @@ fun DropboxScreen(
         topBar = {
             TopAppBar(title = { Text("Monitoring Drop Box") })
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = {
-                scope.launch {
-                    viewModel.addDropbox(
-                        Dropbox(
-                            nama = "DROP-BOX BARU ${System.currentTimeMillis() % 1000}",
-                            lokasi = "Lokasi Random",
-                            kapasitas = 1000
-                        )
-                    )
-                }
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah Drop Box Dummy")
-            }
-        }
+        // FLOATING ACTION BUTTON DIHAPUS DARI SINI
+        // floatingActionButton = { ... }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -68,16 +55,41 @@ fun DropboxScreen(
                 items(dropboxItems) { item ->
                     DropboxItemCard(
                         item = item,
-                        onDelete = { viewModel.deleteDropbox(item) } // Panggil fungsi delete dari ViewModel
+                        onDelete = { viewModel.deleteDropbox(item) }
                     )
                 }
             }
+
+            // <--- TAMBAHKAN BUTTON BIASA DI SINI SEBAGAI ITEM TERAKHIR DARI LAZYCOLUMN
+            item {
+                Spacer(modifier = Modifier.height(16.dp)) // Spasi dari item terakhir
+                Button(
+                    onClick = {
+                        scope.launch {
+                            viewModel.addDropbox(
+                                Dropbox(
+                                    nama = "DROP-BOX BARU ${System.currentTimeMillis() % 1000}",
+                                    lokasi = "Lokasi Random",
+                                    kapasitas = 1000
+                                )
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(50.dp) // Sesuaikan tinggi button
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Tambah Drop Box Dummy")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Tambah Drop Box Dummy")
+                }
+                Spacer(modifier = Modifier.height(16.dp)) // Spasi di bagian bawah
+            }
+            // --- AKHIR PENAMBAHAN BUTTON ---
         }
     }
 }
 
 @Composable
-fun DropboxItemCard(item: Dropbox, onDelete: (Dropbox) -> Unit) { // Tambahkan parameter onDelete
+fun DropboxItemCard(item: Dropbox, onDelete: (Dropbox) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(item.nama, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -87,12 +99,12 @@ fun DropboxItemCard(item: Dropbox, onDelete: (Dropbox) -> Unit) { // Tambahkan p
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Live E-SAMPAH: ${item.kapasitas} KG", style = MaterialTheme.typography.bodyMedium)
-                Row { // Bungkus tombol aksi dalam Row
+                Row {
                     Button(onClick = { /* TODO: Kirim action */ }) {
                         Text("Kirim")
                     }
-                    Spacer(Modifier.width(8.dp)) // Spasi antar tombol
-                    IconButton(onClick = { onDelete(item) }) { // TOMBOL DELETE
+                    Spacer(Modifier.width(8.dp))
+                    IconButton(onClick = { onDelete(item) }) {
                         Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = MaterialTheme.colorScheme.error)
                     }
                 }
@@ -105,8 +117,6 @@ fun DropboxItemCard(item: Dropbox, onDelete: (Dropbox) -> Unit) { // Tambahkan p
 @Composable
 fun DropboxScreenPreview() {
     DashboardEwasteAndroidTheme {
-        // Untuk Preview, Anda bisa menyediakan ViewModel dummy atau data dummy
-        // Karena DropboxItemCard membutuhkan onDelete, Anda mungkin perlu membuat fungsi dummy
-        Text("Preview DropboxScreen (dengan delete)")
+        Text("Preview DropboxScreen (dengan button)")
     }
 }

@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update // <-- Impor baru
+import androidx.room.Update
 import com.example.dashboard_ewaste_android.data.model.Approval
 import kotlinx.coroutines.flow.Flow
 
