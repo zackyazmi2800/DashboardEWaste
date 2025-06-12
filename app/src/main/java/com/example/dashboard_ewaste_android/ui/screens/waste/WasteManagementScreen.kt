@@ -24,17 +24,22 @@ import com.example.dashboard_ewaste_android.data.model.WasteItem
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WasteManagementScreen(
     viewModel: WasteViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.loadWasteItems()
+    }
+
     val wasteItems by viewModel.wasteItems.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
 
     var showAddWasteDialog by remember { mutableStateOf(false) }
     var wasteNameInput by remember { mutableStateOf("") }
@@ -46,60 +51,57 @@ fun WasteManagementScreen(
         topBar = {
             TopAppBar(title = { Text("Manajemen Sampah") })
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showAddWasteDialog = true }) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+        // FloatingActionButton DIHAPUS DARI SINI
+        // floatingActionButton = { ... }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                WasteCategory(
+                    categoryName = "Semua Sampah Terdaftar",
+                    items = wasteItems.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
+            }
+
+            item {
+                WasteCategory(
+                    categoryName = "Sampah Ponsel",
+                    items = wasteItems.filter { it.nama.contains("Ponsel", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
+            }
+            item {
+                WasteCategory(
+                    categoryName = "Sampah TV/Monitor",
+                    items = wasteItems.filter { it.nama.contains("TV", ignoreCase = true) || it.nama.contains("Monitor", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
+            }
+            item {
+                WasteCategory(
+                    categoryName = "Sampah Komputer",
+                    items = wasteItems.filter { it.nama.contains("Komputer", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
+                )
+            }
+
+            // --- TOMBOL TAMBAH BIASA DI SINI ---
+            item {
+                Spacer(modifier = Modifier.height(16.dp)) // Spasi dari item terakhir
+                Button(
+                    onClick = { showAddWasteDialog = true },
+                    modifier = Modifier.fillMaxWidth().height(50.dp) // Sesuaikan tinggi button
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Tambah Sampah")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Tambah")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Tambah Sampah Baru") // Teks tombol
                 }
+                Spacer(modifier = Modifier.height(16.dp)) // Spasi di bagian bawah
             }
-        }
-    ) { paddingValues ->
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                item {
-                    WasteCategory(
-                        categoryName = "Semua Sampah Terdaftar",
-                        items = wasteItems.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
-                    )
-                }
-
-                item {
-                    WasteCategory(
-                        categoryName = "Sampah Ponsel",
-                        items = wasteItems.filter { it.nama.contains("Ponsel", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
-                    )
-                }
-                item {
-                    WasteCategory(
-                        categoryName = "Sampah TV/Monitor",
-                        items = wasteItems.filter { it.nama.contains("TV", ignoreCase = true) || it.nama.contains("Monitor", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
-                    )
-                }
-                item {
-                    WasteCategory(
-                        categoryName = "Sampah Komputer",
-                        items = wasteItems.filter { it.nama.contains("Komputer", ignoreCase = true) }.map { "${it.nama} (${it.berat}kg, ${it.qty}pcs)" }
-                    )
-                }
-            }
+            // --- AKHIR TOMBOL TAMBAH BIASA ---
         }
 
-        // Panggil dialog jika showAddWasteDialog true
         if (showAddWasteDialog) {
             AddWasteDialog(
                 wasteName = wasteNameInput,
@@ -109,18 +111,20 @@ fun WasteManagementScreen(
                 wasteQty = wasteQtyInput,
                 onWasteQtyChange = { wasteQtyInput = it },
                 onAddWaste = {
-                    val name = wasteNameInput.trim()
-                    val weight = wasteWeightInput.toIntOrNull()
-                    val qty = wasteQtyInput.toIntOrNull()
+                    scope.launch {
+                        val name = wasteNameInput.trim()
+                        val weight = wasteWeightInput.toIntOrNull()
+                        val qty = wasteQtyInput.toIntOrNull()
 
-                    if (name.isNotBlank() && weight != null && qty != null) {
-                        viewModel.addWasteItem(WasteItem(nama = name, berat = weight, qty = qty))
-                        wasteNameInput = ""
-                        wasteWeightInput = ""
-                        wasteQtyInput = ""
-                        showAddWasteDialog = false
-                    } else {
-                        // Anda bisa menambahkan Toast atau Snackbar di sini untuk pesan error
+                        if (name.isNotBlank() && weight != null && qty != null) {
+                            viewModel.addWasteItem(WasteItem(nama = name, berat = weight, qty = qty))
+                            wasteNameInput = ""
+                            wasteWeightInput = ""
+                            wasteQtyInput = ""
+                            showAddWasteDialog = false
+                        } else {
+                            // Anda bisa menambahkan Toast atau Snackbar di sini untuk pesan error
+                        }
                     }
                 },
                 onDismiss = {

@@ -7,7 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.Add // <--- TAMBAHKAN BARIS INI
+import androidx.compose.material.icons.filled.Add //
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +20,7 @@ import com.example.dashboard_ewaste_android.ui.theme.DashboardEwasteAndroidTheme
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.dashboard_ewaste_android.data.model.Approval // Impor model Approval
+import com.example.dashboard_ewaste_android.data.model.Approval
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

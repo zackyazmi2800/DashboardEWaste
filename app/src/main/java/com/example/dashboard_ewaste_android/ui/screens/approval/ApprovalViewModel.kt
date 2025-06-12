@@ -36,6 +36,9 @@ class ApprovalViewModel @Inject constructor(
                 repository.addApproval(Approval(namaPengaju = "Zacky Azmi", tipeApproval = "Masyarakat"))
                 repository.addApproval(Approval(namaPengaju = "Aldi Maulana Fadilah", tipeApproval = "Kurir"))
                 repository.addApproval(Approval(namaPengaju = "Umar", tipeApproval = "Masyarakat"))
+                repository.addApproval(Approval(namaPengaju = "Bagus", tipeApproval = "Kurir"))
+                repository.addApproval(Approval(namaPengaju = "Rizky", tipeApproval = "Masyarakat"))
+                repository.addApproval(Approval(namaPengaju = "UmarKedua", tipeApproval = "Kurir"))
             }
         }
     }

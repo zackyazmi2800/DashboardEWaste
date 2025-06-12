@@ -64,7 +64,7 @@ fun PoinScreen(
             Button(onClick = {
                 viewModel.addPoin(Poin(jumlahPoin = (10..100).random())) // Tambah poin acak
             }) {
-                Text("Tambah Poin Dummy")
+                Text("Tambah Poin")
             }
         }
     }

@@ -11,6 +11,5 @@ data class Approval(
     val tipeApproval: String, // Contoh: "Masyarakat", "Kurir"
     val status: String = "Pending", // Status: "Pending", "Approved", "Rejected"
     val tanggalPengajuan: Long = System.currentTimeMillis() // Tanggal pengajuan dalam milidetik
-    // Anda bisa menambahkan properti lain seperti detail berkas jika diperlukan
-    // val berkasDetailId: Long? = null // Jika ada relasi ke BerkasDetail
+
 )

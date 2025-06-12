@@ -45,7 +45,7 @@ class DropboxViewModel @Inject constructor(
         loadDropboxes()
     }
 
-    fun deleteDropbox(dropbox: Dropbox) { // <--- TAMBAHKAN FUNGSI INI
+    fun deleteDropbox(dropbox: Dropbox) {
         Log.d("DropboxViewModel", "Deleting Dropbox: ${dropbox.nama}")
         viewModelScope.launch {
             repository.deleteDropbox(dropbox)
